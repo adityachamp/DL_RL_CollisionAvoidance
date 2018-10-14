@@ -1,3 +1,4 @@
-# DL_RL_CollisionAvoidance
+# BU-EC500-DL_RL_CollisionAvoidance
 
-Collision Avoidance Using Reinforcement Learning.
+Project Git for BU EC500 - Deep Learning. Collision Avoidance Using Reinforcement Learning.
+
