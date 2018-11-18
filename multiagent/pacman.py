@@ -46,6 +46,7 @@ import types
 import time
 import random
 import os
+import pacmanDQN_Agents
 
 ###################################################
 # YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
