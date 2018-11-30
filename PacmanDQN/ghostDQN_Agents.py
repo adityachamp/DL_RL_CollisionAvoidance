@@ -79,11 +79,9 @@ class ghostDQN(Agent):
         self.last_score = 0
         self.s = time.time()
         self.last_reward = 0.
-        self.lastdist = state.data.layout.width + state.data.layout.height
 
         self.replay_mem = deque()
         self.last_scores = deque()
-        self.lastdist = deque()
 
 
     def getMove(self, state):
@@ -171,21 +169,12 @@ class ghostDQN(Agent):
 
             # Process current experience reward
             self.current_score = state.getScore()
-            
             reward = self.current_score - self.last_score
 
             self.last_score = self.current_score
 
-
-            pac_state = self.getPacmanMatrix(state)
-            ghost_state = self.getPacmanMatrix(state)            
-            dist = findManhattanDistance(pac_state,ghost_state)
-            self.current_dist = dist
-            movement = self.lastdist -  self.current_dist 
-            
-        
             if reward > 20:
-            	# pacman ate the ghost - punish heavily
+                # pacman ate the ghost - punish heavily
                 self.last_reward = -150.    # Eat ghost   (Yum! Yum!)
             elif reward > 0:
                 self.last_reward = -10.    # Eat food    (Yum!)
@@ -195,10 +184,6 @@ class ghostDQN(Agent):
             elif reward < 0:
                 self.last_reward = 1.    # Punish time (Pff..)
 
-            width, height = state.data.layout.width, state.data.layout.height
-            self.last_reward = self.last_reward + (movement)* ((width*height)/self.current_dist) * 15
-
-            self.lastdist = self.current_dist
 
             if(self.terminal and self.won):
                 self.last_reward = 100.
@@ -225,13 +210,6 @@ class ghostDQN(Agent):
         self.params['eps'] = max(self.params['eps_final'],
                                  1.00 - float(self.cnt)/ float(self.params['eps_step']))
 
-    def findManhattanDistance(self,pacMat,ghostMat):
-        pac_x = np.where(pacMat ==1)[0][0]
-        pac_y = np.where(pacMat ==1)[1][0]
-        ghost_x = np.where(ghostMat ==1)[0][0]
-        ghost_y = np.where(ghostMat ==1)[1][0]
-        dist = np.abs(pac_x - ghost_x) + np.abs(pac_y - ghost_y)
-        return dist
 
     def observationFunction(self, state):
         # Do observation
@@ -429,4 +407,3 @@ class ghostDQN(Agent):
         if move not in legal:
             move = self.getRandom(state)
         return move
-

@@ -56,6 +56,7 @@ import os
 import pacmanDQN_Agents
 import ghostDQN_Agents
 import ghostAgents
+import randomPacman_Agents
 
 ###################################################
 # YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
