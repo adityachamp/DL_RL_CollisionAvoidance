@@ -55,7 +55,7 @@ class ghostDQN(Agent):
 
         # Load parameters from user-given arguments
         self.params = params
-        self.params['width'] = 8
+        self.params['width'] = 8 
         self.params['height'] = 7
         self.params['num_training'] = 400
         # TODO: make this dynamic - for different ghosts
@@ -79,11 +79,11 @@ class ghostDQN(Agent):
         self.last_score = 0
         self.s = time.time()
         self.last_reward = 0.
-        self.lastdist = state.data.layout.width + state.data.layout.height
+        self.lastdist = 15
 
         self.replay_mem = deque()
         self.last_scores = deque()
-        self.lastdist = deque()
+        # self.lastdist = deque()
 
 
     def getMove(self, state):
@@ -163,6 +163,33 @@ class ghostDQN(Agent):
         else:
             return Directions.WEST
 
+    def getPacmanMatrix(self,state):
+        """ Return matrix with pacman coordinates set to 1 """
+        width, height = state.data.layout.width, state.data.layout.height
+        matrix = np.zeros((height, width), dtype=np.int8)
+
+        for agentState in state.data.agentStates:
+            if agentState.isPacman:
+                pos = agentState.configuration.getPosition()
+                cell = 1
+                matrix[-1-int(pos[1])][int(pos[0])] = cell
+
+        return matrix
+
+    def getGhostMatrix(self,state):
+        """ Return matrix with ghost coordinates set to 1 """
+        width, height = state.data.layout.width, state.data.layout.height
+        matrix = np.zeros((height, width), dtype=np.int8)
+
+        for agentState in state.data.agentStates:
+            if not agentState.isPacman:
+                if not agentState.scaredTimer > 0:
+                    pos = agentState.configuration.getPosition()
+                    cell = 1
+                    matrix[-1-int(pos[1])][int(pos[0])] = cell
+
+        return matrix
+
     def observation_step(self, state):
         if self.last_action is not None:
             # Process current experience state
@@ -178,11 +205,11 @@ class ghostDQN(Agent):
 
 
             pac_state = self.getPacmanMatrix(state)
-            ghost_state = self.getPacmanMatrix(state)            
-            dist = findManhattanDistance(pac_state,ghost_state)
+            ghost_state = self.getGhostMatrix(state)            
+            dist = self.findManhattanDistance(pac_state,ghost_state)
             self.current_dist = dist
             movement = self.lastdist -  self.current_dist 
-            
+            print(self.lastdist)
         
             if reward > 20:
             	# pacman ate the ghost - punish heavily
@@ -197,7 +224,7 @@ class ghostDQN(Agent):
 
             width, height = state.data.layout.width, state.data.layout.height
             self.last_reward = self.last_reward + (movement)* ((width*height)/self.current_dist) * 15
-
+            print(self.last_reward )
             self.lastdist = self.current_dist
 
             if(self.terminal and self.won):
@@ -429,4 +456,6 @@ class ghostDQN(Agent):
         if move not in legal:
             move = self.getRandom(state)
         return move
+
+
 
