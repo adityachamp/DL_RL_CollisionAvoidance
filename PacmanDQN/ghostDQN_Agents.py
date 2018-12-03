@@ -101,21 +101,25 @@ class ghostDQN(Agent):
 
             self.Q_global.append(max(self.Q_pred))
             a_winner = np.argwhere(self.Q_pred == np.amax(self.Q_pred))
-
-            if len(a_winner) > 1:
-                # iterate over the winning moves
-                for i in range(len(a_winner)):
-                    # for each move check if the current is leagal
-                    move = self.get_direction(a_winner[i][0])
-                    if self.isLegal(state, move):
-                        # if the current move is legal, set it as the current move
-                        # rather than random
-                        break
-                # move = self.get_direction(
-                #     a_winner[np.random.randint(0, len(a_winner))][0])
+            if len(a_winner) == 0 :
+                print(a_winner)
+                move = self.getRandom(state)
+                pass
             else:
-                move = self.get_direction(
-                    a_winner[0][0])
+                if len(a_winner) > 1:
+                    # iterate over the winning moves
+                    for i in range(len(a_winner)):
+                        # for each move check if the current is leagal
+                        move = self.get_direction(a_winner[i][0])
+                        if self.isLegal(state, move):
+                            # if the current move is legal, set it as the current move
+                            # rather than random
+                            break
+                    # move = self.get_direction(
+                    #     a_winner[np.random.randint(0, len(a_winner))][0])
+                else:
+                    move = self.get_direction(
+                        a_winner[0][0])
         else:
             # Random:
             move = self.getRandom(state)
@@ -223,7 +227,7 @@ class ghostDQN(Agent):
                 self.last_reward = 1.    # Punish time (Pff..)
 
             width, height = state.data.layout.width, state.data.layout.height
-            self.last_reward = self.last_reward + (movement)* ((width*height)/self.current_dist) * 15
+            self.last_reward = self.last_reward + (movement)* ((width+height)/self.current_dist) * 20
             print(self.last_reward )
             self.lastdist = self.current_dist
 
