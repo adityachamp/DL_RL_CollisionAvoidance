@@ -56,6 +56,7 @@ import os
 import pacmanDQN_Agents
 import ghostDQN_Agents
 import ghostAgents
+import randomPacman_Agents
 
 ###################################################
 # YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
@@ -667,6 +668,7 @@ def loadAgent(pacman, nographics):
 def replayGame(layout, actions, display):
     import pacmanAgents
     import ghostAgents
+    import randomPacman_Agents
     rules = ClassicGameRules()
     agents = [pacmanAgents.GreedyAgent()] + [ghostAgents.RandomGhost(i + 1)
                                              for i in range(layout.getNumGhosts())]

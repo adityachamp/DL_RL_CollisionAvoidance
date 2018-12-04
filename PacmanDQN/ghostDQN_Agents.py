@@ -104,7 +104,7 @@ class ghostDQN(Agent):
             if len(a_winner) == 0 :
                 print(a_winner)
                 move = self.getRandom(state)
-                pass
+    
             else:
                 if len(a_winner) > 1:
                     # iterate over the winning moves
