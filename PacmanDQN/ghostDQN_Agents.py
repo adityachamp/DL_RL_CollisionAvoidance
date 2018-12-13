@@ -257,57 +257,57 @@ class ghostDQN(Agent):
             width, height = state.data.layout.width, state.data.layout.height
 
 
-            # if self.index == 2:
-            #     prev_other_ghost_matrix = self.previous_ghost_matrix[0]
-            #     current_other_ghost_matrix = self.getOtherGhostMatrix(state, 1)
+            if self.index == 2:
+                prev_other_ghost_matrix = self.previous_ghost_matrix[0]
+                current_other_ghost_matrix = self.getOtherGhostMatrix(state, 1)
 
-            #     prev_responder_ghost_matrix = self.previous_ghost_matrix[1]
-            #     current_responder_ghost_matrix = self.getOtherGhostMatrix(state, 2)
+                prev_responder_ghost_matrix = self.previous_ghost_matrix[1]
+                current_responder_ghost_matrix = self.getOtherGhostMatrix(state, 2)
                 
-            #     x_prev_ghost_other = np.where(prev_other_ghost_matrix ==1)[0][0]
-            #     y_prev_ghost_other = np.where(prev_other_ghost_matrix ==1)[1][0]
+                x_prev_ghost_other = np.where(prev_other_ghost_matrix ==1)[0][0]
+                y_prev_ghost_other = np.where(prev_other_ghost_matrix ==1)[1][0]
 
-            #     x_curr_ghost_other = np.where(current_other_ghost_matrix ==1)[0][0]
-            #     y_curr_ghost_other = np.where(current_other_ghost_matrix ==1)[1][0]
+                x_curr_ghost_other = np.where(current_other_ghost_matrix ==1)[0][0]
+                y_curr_ghost_other = np.where(current_other_ghost_matrix ==1)[1][0]
 
-            #     x_prev_ghost_responder = np.where(prev_responder_ghost_matrix ==1)[0][0]
-            #     y_prev_ghost_responder = np.where(prev_responder_ghost_matrix ==1)[1][0]
+                x_prev_ghost_responder = np.where(prev_responder_ghost_matrix ==1)[0][0]
+                y_prev_ghost_responder = np.where(prev_responder_ghost_matrix ==1)[1][0]
 
-            #     x_curr_ghost_responder = np.where(current_responder_ghost_matrix ==1)[0][0]
-            #     y_curr_ghost_responder = np.where(current_responder_ghost_matrix ==1)[1][0]
+                x_curr_ghost_responder = np.where(current_responder_ghost_matrix ==1)[0][0]
+                y_curr_ghost_responder = np.where(current_responder_ghost_matrix ==1)[1][0]
 
-            #     x_pac = np.where(pac_state == 1)[0][0]
-            #     y_pac = np.where(pac_state == 1)[1][0]
+                x_pac = np.where(pac_state == 1)[0][0]
+                y_pac = np.where(pac_state == 1)[1][0]
 
-            #     same_x = False
-            #     same_y = False
+                same_x = False
+                same_y = False
 
-            #     if x_prev_ghost_responder == x_curr_ghost_responder == x_pac:
-            #         same_x = True
+                if x_prev_ghost_responder == x_curr_ghost_responder == x_pac:
+                    same_x = True
 
-            #     if y_prev_ghost_responder == y_curr_ghost_responder == y_pac:
-            #         same_y = True
+                if y_prev_ghost_responder == y_curr_ghost_responder == y_pac:
+                    same_y = True
 
-            #     if same_x:
-            #         if np.sign(y_prev_ghost_other - y_curr_ghost_other) != np.sign(y_prev_ghost_responder - y_prev_ghost_responder):
-            #             self.last_reward += 10
-            #         else:
-            #             self.last_reward -= 1
-            #     elif same_y:
-            #         if np.sign(x_prev_ghost_other - x_curr_ghost_other) != np.sign(x_prev_ghost_responder - x_prev_ghost_responder):
-            #             self.last_reward += 10
-            #         else:
-            #             self.last_reward -= 1
+                if same_x:
+                    if np.sign(y_prev_ghost_other - y_curr_ghost_other) != np.sign(y_prev_ghost_responder - y_prev_ghost_responder):
+                        self.last_reward += 10
+                    else:
+                        self.last_reward -= 1
+                elif same_y:
+                    if np.sign(x_prev_ghost_other - x_curr_ghost_other) != np.sign(x_prev_ghost_responder - x_prev_ghost_responder):
+                        self.last_reward += 10
+                    else:
+                        self.last_reward -= 1
 
-            #     # penalize mirroring for normal cases when they don't lie on the same axes
-            #     elif (x_prev_ghost_other - x_curr_ghost_other) * (x_prev_ghost_responder - x_prev_ghost_responder) < 0:
-            #         self.last_reward -= 5
+                # penalize mirroring for normal cases when they don't lie on the same axes
+                elif (x_prev_ghost_other - x_curr_ghost_other) * (x_prev_ghost_responder - x_prev_ghost_responder) < 0:
+                    self.last_reward -= 5
 
-            #     elif (y_prev_ghost_other - y_curr_ghost_other) * (y_prev_ghost_responder - y_prev_ghost_responder) < 0:
-            #         self.last_reward -= 5
+                elif (y_prev_ghost_other - y_curr_ghost_other) * (y_prev_ghost_responder - y_prev_ghost_responder) < 0:
+                    self.last_reward -= 5
 
-            #     else:
-            #         self.last_reward += 1
+                else:
+                    self.last_reward += 1
             
             self.lastdist = self.current_dist
 
@@ -363,7 +363,7 @@ class ghostDQN(Agent):
         self.observation_step(state)
 
         # Print stats
-        log_file = open('./logs/'+str(self.general_record_time)+'-l-'+str(self.params['width'])+'-m-'+str(self.params['height'])+'-x-'+str(self.params['num_training'])+'.log','a')
+        log_file = open('./logs/ghost-'+str(self.general_record_time)+'-l-'+str(self.params['width'])+'-m-'+str(self.params['height'])+'-x-'+str(self.params['num_training'])+'.log','a')
         log_file.write("# %4d | steps: %5d | steps_t: %5d | t: %4f | r: %12f | e: %10f " %
                          (self.numeps,self.local_cnt, self.cnt, time.time()-self.s, self.ep_rew, self.params['eps']))
         log_file.write("| Q: %10f | won: %r \n" % ((max(self.Q_global, default=float('nan')), self.won)))
