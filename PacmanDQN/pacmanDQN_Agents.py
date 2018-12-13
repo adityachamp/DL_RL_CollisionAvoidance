@@ -27,9 +27,18 @@ from DQN import *
 
 params = {
     # Model backups
+    # for small pacman
+    # 'load_file': '/projectnb/dl-course/swarnims/project/DL_RL_CollisionAvoidance/PacmanDQN/saves/pacman_small/model-0_139805_5641',
+    # for medium - proper
+    # 'load_file': 'saves/medium_more/model-pacman_medium_more_iterations_331162_4984',
+    # classic trained pacman
+    # 'load_file': '/projectnb/dl-course/vidyaam/project/DL_RL_CollisionAvoidance/PacmanDQN/saves/model-classic_pacman_final_3762226_652',
+    
+    # 'load_file': 'saves/model-pacman_against_two_medium_518322_16984',
     'load_file': None,
+    # 'save_file': 'pacman_against_two_medium',
     'save_file': None,
-    'save_interval': 10000,
+    'save_interval': 1000,
 
     # Training parameters
     'train_start': 5000,    # Episodes before training starts
@@ -154,7 +163,7 @@ class PacmanDQN(game.Agent):
                 self.won = False
             elif reward < 0:
                 self.last_reward = -1.    # Punish time (Pff..)
-
+            # print(self.last_reward)
             if(self.terminal and self.won):
                 self.last_reward = 100.
             self.ep_rew += self.last_reward

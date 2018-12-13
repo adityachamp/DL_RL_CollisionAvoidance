@@ -6,7 +6,6 @@
 # The Pacman AI projects were developed at UC Berkeley found at
 # http://ai.berkeley.edu/project_overview.html
 
-
 import numpy as np
 import random
 import util
@@ -26,12 +25,20 @@ from DQN import *
 
 params = {
     # Model backups
+    # intermediate ghost for bigger grid - not good
+    # 'load_file': '/projectnb/dl-course/vidyaam/project/DL_RL_CollisionAvoidance/PacmanDQN/saves/model-ghosts_classic_199471_479',
+
+    # 'load_file': '/projectnb/dl-course/nidhi/project/taken_swarnim/DL_RL_CollisionAvoidance/PacmanDQN/saves/ghosts_medium_more_iterations/model-ghosts_medium_more_iterations_398990_16961',
+    # 'load_file': 'saves/model-ghost_medium_final_570356_17961',
+    # 'save_file': 'ghost_medium_final',
+    # 'load_file': 'saves/model-ghosts_two_against_medium_513960_16990',
     'load_file': None,
+    # 'save_file': 'swarnim_ghosts_before_11',
     'save_file': None,
-    'save_interval' : 25,
+    'save_interval' : 1000,
 
     # Training parameters
-    'train_start': 50,    # Episodes before training starts
+    'train_start': 5000,    # Episodes before training starts
     'batch_size': 32,       # Replay memory batch size
     'mem_size': 100000,     # Replay memory size
 
@@ -47,9 +54,8 @@ params = {
 }
 
 
-
 class ghostDQN(Agent):
-    def __init__(self, args):
+    def __init__(self, index):
 
         print("Initialise DQN Agent")
 
@@ -59,7 +65,7 @@ class ghostDQN(Agent):
         self.params['height'] = 7
         self.params['num_training'] = 400
         # TODO: make this dynamic - for different ghosts
-        self.index = 0
+        self.index = index
         # Start Tensorflow session
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.1)
         self.sess = tf.Session(config = tf.ConfigProto(gpu_options = gpu_options))
@@ -79,9 +85,12 @@ class ghostDQN(Agent):
         self.last_score = 0
         self.s = time.time()
         self.last_reward = 0.
+        self.lastdist = 15
 
         self.replay_mem = deque()
         self.last_scores = deque()
+
+        # self.lastdist = deque()
 
 
     def getMove(self, state):
@@ -99,21 +108,24 @@ class ghostDQN(Agent):
 
             self.Q_global.append(max(self.Q_pred))
             a_winner = np.argwhere(self.Q_pred == np.amax(self.Q_pred))
-
-            if len(a_winner) > 1:
-                # iterate over the winning moves
-                for i in range(len(a_winner)):
-                    # for each move check if the current is leagal
-                    move = self.get_direction(a_winner[i][0])
-                    if self.isLegal(state, move):
-                        # if the current move is legal, set it as the current move
-                        # rather than random
-                        break
-                # move = self.get_direction(
-                #     a_winner[np.random.randint(0, len(a_winner))][0])
+            if len(a_winner) == 0 :
+                move = self.getRandom(state)
+    
             else:
-                move = self.get_direction(
-                    a_winner[0][0])
+                if len(a_winner) > 1:
+                    # iterate over the winning moves
+                    for i in range(len(a_winner)):
+                        # for each move check if the current is leagal
+                        move = self.get_direction(a_winner[i][0])
+                        if self.isLegal(state, move):
+                            # if the current move is legal, set it as the current move
+                            # rather than random
+                            break
+                    # move = self.get_direction(
+                    #     a_winner[np.random.randint(0, len(a_winner))][0])
+                else:
+                    move = self.get_direction(
+                        a_winner[0][0])
         else:
             # Random:
             move = self.getRandom(state)
@@ -130,14 +142,14 @@ class ghostDQN(Agent):
         """
         return true if the move returned by the DQN is a valid move for the ghost or not
         """
-        possibleMoves = GhostRules.getLegalActions(state, 1)
+        possibleMoves = GhostRules.getLegalActions(state, self.index)
         return move in possibleMoves
 
     def getRandom(self, state):
         """
         return a randomly generated move if the move returned by DQN is invalid
         """
-        possibleMoves = GhostRules.getLegalActions(state, 1)
+        possibleMoves = GhostRules.getLegalActions(state, self.index)
         move = possibleMoves[np.random.randint(0,len(possibleMoves))]
         return move
 
@@ -161,18 +173,71 @@ class ghostDQN(Agent):
         else:
             return Directions.WEST
 
+    def getOtherGhostMatrix(self, state, index):
+        """ Return a matrix for the 1st ghost's position set to 1 """
+        width, height = state.data.layout.width, state.data.layout.height
+        matrix = np.zeros((height, width), dtype=np.int8)
+        # mark the index of the 1st ghost as 1
+        pos = state.data.agentStates[index].configuration.getPosition()
+        cell = 1
+        matrix[-1-int(pos[1])][int(pos[0])] = cell
+        
+        return matrix
+    def getPacmanMatrix(self,state):
+        """ Return matrix with pacman coordinates set to 1 """
+        width, height = state.data.layout.width, state.data.layout.height
+        matrix = np.zeros((height, width), dtype=np.int8)
+
+        for agentState in state.data.agentStates:
+            if agentState.isPacman:
+                pos = agentState.configuration.getPosition()
+                cell = 1
+                matrix[-1-int(pos[1])][int(pos[0])] = cell
+
+        return matrix
+
+    def getGhostMatrix(self,state):
+        """ Return matrix with ghost coordinates set to 1 """
+        width, height = state.data.layout.width, state.data.layout.height
+        matrix = np.zeros((height, width), dtype=np.int8)
+
+        for agentState in state.data.agentStates:
+            if not agentState.isPacman:
+                if not agentState.scaredTimer > 0:
+                    pos = agentState.configuration.getPosition()
+                    cell = 1
+                    matrix[-1-int(pos[1])][int(pos[0])] = cell
+
+        return matrix
+
     def observation_step(self, state):
         if self.last_action is not None:
             # Process current experience state
             self.last_state = np.copy(self.current_state)
             self.current_state = self.getStateMatrices(state)
 
+            self.previous_ghost_matrix = np.copy(self.current_ghost_matrix)
+            self.current_ghost_matrix = self.getPrevGhostStateMatrices(state)
+            
+
             # Process current experience reward
             self.current_score = state.getScore()
+            
             reward = self.current_score - self.last_score
 
             self.last_score = self.current_score
 
+
+            pac_state = self.getPacmanMatrix(state)
+            ghost_state = self.getGhostMatrix(state)
+
+            if len(np.where(ghost_state ==1)[0])==0:
+                dist = self.lastdist
+            else:
+                dist = self.findManhattanDistance(pac_state,ghost_state)
+            self.current_dist = dist
+            movement = self.lastdist -  self.current_dist 
+        
             if reward > 20:
                 # pacman ate the ghost - punish heavily
                 self.last_reward = -150.    # Eat ghost   (Yum! Yum!)
@@ -181,12 +246,73 @@ class ghostDQN(Agent):
             elif reward < -10:
                 self.last_reward = 500.  # Get eaten   (Ouch!) -500
                 self.won = True
-            elif reward < 0:
-                self.last_reward = 1.    # Punish time (Pff..)
 
+            elif movement < 0:
+                # moving away = -1
+                self.last_reward = -1
+            # todo create reward system for ghost 2
+            # if the x or y co-ordinates for both of the ghosts and the pacman
+            # is the same, then reward mirror movements
+            # else punish mirror movements
+            width, height = state.data.layout.width, state.data.layout.height
+
+
+            # if self.index == 2:
+            #     prev_other_ghost_matrix = self.previous_ghost_matrix[0]
+            #     current_other_ghost_matrix = self.getOtherGhostMatrix(state, 1)
+
+            #     prev_responder_ghost_matrix = self.previous_ghost_matrix[1]
+            #     current_responder_ghost_matrix = self.getOtherGhostMatrix(state, 2)
+                
+            #     x_prev_ghost_other = np.where(prev_other_ghost_matrix ==1)[0][0]
+            #     y_prev_ghost_other = np.where(prev_other_ghost_matrix ==1)[1][0]
+
+            #     x_curr_ghost_other = np.where(current_other_ghost_matrix ==1)[0][0]
+            #     y_curr_ghost_other = np.where(current_other_ghost_matrix ==1)[1][0]
+
+            #     x_prev_ghost_responder = np.where(prev_responder_ghost_matrix ==1)[0][0]
+            #     y_prev_ghost_responder = np.where(prev_responder_ghost_matrix ==1)[1][0]
+
+            #     x_curr_ghost_responder = np.where(current_responder_ghost_matrix ==1)[0][0]
+            #     y_curr_ghost_responder = np.where(current_responder_ghost_matrix ==1)[1][0]
+
+            #     x_pac = np.where(pac_state == 1)[0][0]
+            #     y_pac = np.where(pac_state == 1)[1][0]
+
+            #     same_x = False
+            #     same_y = False
+
+            #     if x_prev_ghost_responder == x_curr_ghost_responder == x_pac:
+            #         same_x = True
+
+            #     if y_prev_ghost_responder == y_curr_ghost_responder == y_pac:
+            #         same_y = True
+
+            #     if same_x:
+            #         if np.sign(y_prev_ghost_other - y_curr_ghost_other) != np.sign(y_prev_ghost_responder - y_prev_ghost_responder):
+            #             self.last_reward += 10
+            #         else:
+            #             self.last_reward -= 1
+            #     elif same_y:
+            #         if np.sign(x_prev_ghost_other - x_curr_ghost_other) != np.sign(x_prev_ghost_responder - x_prev_ghost_responder):
+            #             self.last_reward += 10
+            #         else:
+            #             self.last_reward -= 1
+
+            #     # penalize mirroring for normal cases when they don't lie on the same axes
+            #     elif (x_prev_ghost_other - x_curr_ghost_other) * (x_prev_ghost_responder - x_prev_ghost_responder) < 0:
+            #         self.last_reward -= 5
+
+            #     elif (y_prev_ghost_other - y_curr_ghost_other) * (y_prev_ghost_responder - y_prev_ghost_responder) < 0:
+            #         self.last_reward -= 5
+
+            #     else:
+            #         self.last_reward += 1
+            
+            self.lastdist = self.current_dist
 
             if(self.terminal and self.won):
-                self.last_reward = 100.
+                self.last_reward += 100.
             self.ep_rew += self.last_reward
 
             # Store last experience into memory
@@ -210,6 +336,16 @@ class ghostDQN(Agent):
         self.params['eps'] = max(self.params['eps_final'],
                                  1.00 - float(self.cnt)/ float(self.params['eps_step']))
 
+    def findManhattanDistance(self,pacMat,ghostMat):
+        
+        pac_x = np.where(pacMat ==1)[0][0]
+        pac_y = np.where(pacMat ==1)[1][0]
+        #print(np.where(ghostMat==1))
+        ghost_x = np.where(ghostMat ==1)[0][0]
+        ghost_y = np.where(ghostMat ==1)[1][0]
+        dist = np.abs(pac_x - ghost_x) + np.abs(pac_y - ghost_y)
+        
+        return dist
 
     def observationFunction(self, state):
         # Do observation
@@ -275,6 +411,25 @@ class ghostDQN(Agent):
         for i in range(len(stateMatrices)):
             total += (i + 1) * stateMatrices[i] / 6
         return total
+
+    def getPrevGhostStateMatrices(self, state):
+        width, height = state.data.layout.width, state.data.layout.height
+        matrix1 = np.zeros((height, width), dtype=np.int8)
+
+        
+        pos = state.data.agentStates[1].configuration.getPosition()
+        cell = 1
+        matrix1[-1-int(pos[1])][int(pos[0])] = cell
+
+        matrix2 = np.zeros((height, width), dtype=np.int8)
+
+        # returns the matrix for the second ghost
+        if len(state.data.agentStates) > 2:
+            pos = state.data.agentStates[2].configuration.getPosition()
+            cell = 1
+            matrix2[-1-int(pos[1])][int(pos[0])] = cell
+
+        return matrix1, matrix2
 
     def getStateMatrices(self, state):
         """ Return wall, ghosts, food, capsules matrices """
@@ -386,6 +541,10 @@ class ghostDQN(Agent):
         self.last_state = None
         self.current_state = self.getStateMatrices(state)
 
+        # reset ghost matrix
+        self.current_ghost_matrix = self.getPrevGhostStateMatrices(state)
+        self.previous_ghost_matrix = None
+
         # Reset actions
         self.last_action = None
 
@@ -403,7 +562,7 @@ class ghostDQN(Agent):
         move = self.getMove(state)
 
         # Stop moving when not legal
-        legal = state.getLegalActions(0)
+        legal = state.getLegalActions(self.index)
         if move not in legal:
             move = self.getRandom(state)
         return move
