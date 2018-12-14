@@ -3,9 +3,15 @@
 Deep Reinforcement Learning in Pac-man
 
 ## Demo
+### Independent
+#### Single ghost
+![Demo](https://github.com/adityachamp/DL_RL_CollisionAvoidance/blob/master/PacmanDQN/videos/independent_single_ghost.gif)
+#### Two ghosts
+![Demo](https://github.com/adityachamp/DL_RL_CollisionAvoidance/blob/master/PacmanDQN/videos/independent_two_ghosts.gif)
 
-[![Demo](https://github.com/adityachamp/DL_RL_CollisionAvoidance/tree/master/PacmanDQN/videos/independent_single_ghost.gif)]
-
+### Teamwork
+#### Two ghosts
+#### Three ghosts
 ## Example usage
 
 Run a model on `mediumGrid` layout for 6000 episodes, of which 5000 episodes
