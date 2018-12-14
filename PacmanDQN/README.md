@@ -12,6 +12,7 @@ Deep Reinforcement Learning in Pac-man
 ### Teamwork
 #### Two ghosts
 #### Three ghosts
+![Demo](https://github.com/adityachamp/DL_RL_CollisionAvoidance/blob/master/PacmanDQN/videos/teamwork_three_ghosts.gif)
 ## Example usage
 
 Run a model on `mediumGrid` layout for 6000 episodes, of which 5000 episodes
