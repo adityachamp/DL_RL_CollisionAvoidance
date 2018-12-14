@@ -11,6 +11,7 @@ Deep Reinforcement Learning in Pac-man
 
 ### Teamwork
 #### Two ghosts
+![Demo](https://github.com/adityachamp/DL_RL_CollisionAvoidance/blob/master/PacmanDQN/videos/teamwork_two_ghosts.gif)
 #### Three ghosts
 ![Demo](https://github.com/adityachamp/DL_RL_CollisionAvoidance/blob/master/PacmanDQN/videos/teamwork_three_ghosts.gif)
 ## Example usage
