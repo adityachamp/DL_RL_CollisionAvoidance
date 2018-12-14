@@ -27,7 +27,7 @@ from DQN import *
 
 params = {
     # Model backups
-    'load_file': None,
+    'load_file': '/projectnb/dl-course/harshil/PacmanDQN/saves/model-medium_54122_1023',
     'save_file': None,
     'save_interval': 10000,
 

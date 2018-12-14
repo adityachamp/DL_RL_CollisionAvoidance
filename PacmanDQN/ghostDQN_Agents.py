@@ -27,7 +27,7 @@ from DQN import *
 params = {
     # Model backups
     'load_file': None,
-    'save_file': None,
+    'save_file': 'Ghost',
     'save_interval' : 25,
 
     # Training parameters
@@ -79,7 +79,7 @@ class ghostDQN(Agent):
         self.last_score = 0
         self.s = time.time()
         self.last_reward = 0.
-        self.lastdist = 15
+        self.lastdist = self.params['width'] + self.params['height'] 
 
         self.replay_mem = deque()
         self.last_scores = deque()
@@ -209,8 +209,11 @@ class ghostDQN(Agent):
 
 
             pac_state = self.getPacmanMatrix(state)
-            ghost_state = self.getGhostMatrix(state)            
-            dist = self.findManhattanDistance(pac_state,ghost_state)
+            ghost_state = self.getGhostMatrix(state)         
+            if len(np.where(ghost_state ==1)[0]) == 0:
+                dist = self.lastdist
+            else:
+                dist = self.findManhattanDistance(pac_state,ghost_state)
             self.current_dist = dist
             movement = self.lastdist -  self.current_dist 
             print(self.lastdist)
