@@ -29,16 +29,12 @@ params = {
     # Model backups
     # for small pacman
     # 'load_file': '/projectnb/dl-course/swarnims/project/DL_RL_CollisionAvoidance/PacmanDQN/saves/pacman_small/model-0_139805_5641',
-    # for medium - proper
-    # 'load_file': 'saves/medium_more/model-pacman_medium_more_iterations_331162_4984',
-    # classic trained pacman
-    # 'load_file': '/projectnb/dl-course/vidyaam/project/DL_RL_CollisionAvoidance/PacmanDQN/saves/model-classic_pacman_final_3762226_652',
-    
-    # 'load_file': 'saves/model-pacman_against_two_medium_518322_16984',
-    'load_file': None,
-    # 'save_file': 'pacman_against_two_medium',
+    # for medium pacman
+    'load_file': '/projectnb/dl-course/nidhi/project/taken_swarnim/DL_RL_CollisionAvoidance/PacmanDQN/saves/pacManMediumClassic/model-mediumClassic_pacman_threeghost_fifty_1806202_18919',
+    # 'load_file': None,
+    # 'save_file': 'mediumClassic_pacman_threeghost_fifty',
     'save_file': None,
-    'save_interval': 1000,
+    'save_interval': 10000,
 
     # Training parameters
     'train_start': 5000,    # Episodes before training starts
@@ -163,7 +159,7 @@ class PacmanDQN(game.Agent):
                 self.won = False
             elif reward < 0:
                 self.last_reward = -1.    # Punish time (Pff..)
-            # print(self.last_reward)
+
             if(self.terminal and self.won):
                 self.last_reward = 100.
             self.ep_rew += self.last_reward
@@ -179,7 +175,7 @@ class PacmanDQN(game.Agent):
             if(params['save_file']):
                 if self.local_cnt > self.params['train_start'] and self.local_cnt % self.params['save_interval'] == 0:
                     self.qnet.save_ckpt(
-                        'saves/model-' + params['save_file'] + "_" + str(self.cnt) + '_' + str(self.numeps))
+                        'saves/pacManMediumClassic/model-' + params['save_file'] + "_" + str(self.cnt) + '_' + str(self.numeps))
                     print('Model saved')
 
             # Train
@@ -207,7 +203,7 @@ class PacmanDQN(game.Agent):
         self.observation_step(state)
 
         # Print stats
-        log_file = open('./logs/pacman-'+str(self.index)+ str(self.general_record_time) + '-l-' + str(self.params['width']) + '-m-' + str(
+        log_file = open('./logs/' + str(self.general_record_time) + '-l-' + str(self.params['width']) + '-m-' + str(
             self.params['height']) + '-x-' + str(self.params['num_training']) + '.log', 'a')
         log_file.write("# %4d | steps: %5d | steps_t: %5d | t: %4f | r: %12f | e: %10f " %
                        (self.numeps, self.local_cnt, self.cnt, time.time() - self.s, self.ep_rew, self.params['eps']))

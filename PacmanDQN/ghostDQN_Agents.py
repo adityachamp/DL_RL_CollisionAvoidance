@@ -32,10 +32,12 @@ params = {
     # 'load_file': 'saves/model-ghost_medium_final_570356_17961',
     # 'save_file': 'ghost_medium_final',
     # 'load_file': 'saves/model-ghosts_two_against_medium_513960_16990',
-    'load_file': None,
+    'ghosts_models': ['model-ghost1medium_classic_3_ghosts_50_1806160_18962', 'model-ghost2medium_classic_3_ghosts_50_1796200_18922', 'model-ghost3medium_classic_3_ghosts_50_1796172_18950'],
+    # 'load_file': None,
     # 'save_file': 'swarnim_ghosts_before_11',
+    # 'save_file': 'medium_classic_3_ghosts_50',
     'save_file': None,
-    'save_interval' : 1000,
+    'save_interval' : 10000,
 
     # Training parameters
     'train_start': 5000,    # Episodes before training starts
@@ -60,9 +62,10 @@ class ghostDQN(Agent):
         print("Initialise DQN Agent")
 
         # Load parameters from user-given arguments
+        params['load_file'] = '/projectnb/dl-course/nidhi/project/taken_swarnim/DL_RL_CollisionAvoidance/PacmanDQN/saves/'+params['ghosts_models'][index-1]
         self.params = params
-        self.params['width'] = 8
-        self.params['height'] = 7
+        self.params['width'] = 20
+        self.params['height'] = 11
         self.params['num_training'] = 400
         # TODO: make this dynamic - for different ghosts
         self.index = index
@@ -257,12 +260,12 @@ class ghostDQN(Agent):
             width, height = state.data.layout.width, state.data.layout.height
 
 
-            if self.index == 2:
+            if self.index >= 2:
                 prev_other_ghost_matrix = self.previous_ghost_matrix[0]
                 current_other_ghost_matrix = self.getOtherGhostMatrix(state, 1)
 
-                prev_responder_ghost_matrix = self.previous_ghost_matrix[1]
-                current_responder_ghost_matrix = self.getOtherGhostMatrix(state, 2)
+                prev_responder_ghost_matrix = self.previous_ghost_matrix[self.index-1]
+                current_responder_ghost_matrix = self.getOtherGhostMatrix(state, self.index)
                 
                 x_prev_ghost_other = np.where(prev_other_ghost_matrix ==1)[0][0]
                 y_prev_ghost_other = np.where(prev_other_ghost_matrix ==1)[1][0]
@@ -299,6 +302,8 @@ class ghostDQN(Agent):
                     else:
                         self.last_reward -= 1
 
+
+
                 # penalize mirroring for normal cases when they don't lie on the same axes
                 elif (x_prev_ghost_other - x_curr_ghost_other) * (x_prev_ghost_responder - x_prev_ghost_responder) < 0:
                     self.last_reward -= 5
@@ -324,7 +329,7 @@ class ghostDQN(Agent):
             # Save model
             if(params['save_file']):
                 if self.local_cnt > self.params['train_start'] and self.local_cnt % self.params['save_interval'] == 0:
-                    self.qnet.save_ckpt('saves/model-' + params['save_file'] + "_" + str(self.cnt) + '_' + str(self.numeps))
+                    self.qnet.save_ckpt('saves/model-ghost'+str(self.index) + params['save_file'] + "_" + str(self.cnt) + '_' + str(self.numeps))
                     print('Model saved')
 
             # Train
@@ -422,14 +427,19 @@ class ghostDQN(Agent):
         matrix1[-1-int(pos[1])][int(pos[0])] = cell
 
         matrix2 = np.zeros((height, width), dtype=np.int8)
+        matrix3 = np.zeros((height, width), dtype=np.int8)
 
-        # returns the matrix for the second ghost
         if len(state.data.agentStates) > 2:
             pos = state.data.agentStates[2].configuration.getPosition()
             cell = 1
             matrix2[-1-int(pos[1])][int(pos[0])] = cell
 
-        return matrix1, matrix2
+            if len(state.data.agentStates) > 3:
+                pos = state.data.agentStates[3].configuration.getPosition()
+                cell = 1
+                matrix3[-1-int(pos[1])][int(pos[0])] = cell
+
+        return matrix1, matrix2, matrix3
 
     def getStateMatrices(self, state):
         """ Return wall, ghosts, food, capsules matrices """
