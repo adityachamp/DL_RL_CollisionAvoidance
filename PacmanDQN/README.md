@@ -4,15 +4,15 @@ Deep Reinforcement Learning for training Non - Player Characters i.e. Ghosts in 
 
 ## Demo
 ### Independent
-#### Single ghost
+#### Single ghost against a trained Pacman Agent
 ![Demo](https://github.com/adityachamp/DL_RL_CollisionAvoidance/blob/master/PacmanDQN/videos/independent_single_ghost.gif)
 #### Two ghosts
 ![Demo](https://github.com/adityachamp/DL_RL_CollisionAvoidance/blob/master/PacmanDQN/videos/independent_two_ghosts.gif)
 
 ### Teamwork
-#### Two ghosts
+#### Two ghosts against a trained Pacman agent
 ![Demo](https://github.com/adityachamp/DL_RL_CollisionAvoidance/blob/master/PacmanDQN/videos/teamwork_two_ghosts.gif)
-#### Three ghosts
+#### Three ghosts against a trained Pacman agent
 ![Demo](https://github.com/adityachamp/DL_RL_CollisionAvoidance/blob/master/PacmanDQN/videos/teamwork_three_ghosts.gif)
 ## Example usage
 
@@ -25,7 +25,8 @@ $ python3 ghosts.py -p PacmanDQN -g ghostDQN -n 6000 -x 5000 -l mediumGrid
 ```
 
 ### Layouts
-Different layouts can be found and created in the `layouts` directory
+Different layouts can be found and created in the `layouts` directory.
+This repository utilises the smallGrid, mediumGrid and mediumClassic. 
 
 ### Parameters
 
