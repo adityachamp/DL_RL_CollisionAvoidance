@@ -1,6 +1,6 @@
 
-# PacmanDQN
-Deep Reinforcement Learning in Pac-man
+# PacmanDQN & GhostDQN
+Deep Reinforcement Learning for training Non - Player Characters i.e. Ghosts in Pac-man
 
 ## Demo
 ### Independent
